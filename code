@@ -1,52 +1,93 @@
-mport requests as requests
-import random
 
-url = "https://api.telegram.org/bot1026085102:AAHKemyVdc-LxWLsw7eniMEaXobIVlxTt6k/"
+  import requests
+import datetime
 
-
-# create func that get chat id
-def get_chat_id(update):
-    chat_id = update['message']["chat"]["id"]
-    return chat_id
+token = "1026085102:AAHKemyVdc-LxWLsw7eniMEaXobIVlxTt6k"  # your token API
 
 
-# create function that get message text
-def get_message_text(update):
-    message_text = update["message"]["text"]
-    return message_text
+class BotHandler:
+    def __init__(self, token):
+        self.token = token
+        self.api_url = "https://api.telegram.org/bot{}/".format(token)
+
+    def get_updates(self, offset=None, timeout=30):
+        method = 'getUpdates'
+        params = {'timeout': timeout, 'offset': offset}
+        resp = requests.get(self.api_url + method, params)
+        result_json = resp.json()['result']
+        return result_json
+
+    def send_message(self, chat_id, text):
+        params = {'chat_id': chat_id, 'text': text}
+        method = 'sendMessage'
+        resp = requests.post(self.api_url + method, params)
+        return resp
+
+    def get_last_update(self):
+        get_result = self.get_updates()
+
+        if len(get_result) > 0:
+            last_update = get_result[-1]
+        else:
+            last_update = get_result
+        return last_update
 
 
-# create function that get last_update
-def last_update(req):
-    response = requests.get(req + "getUpdates")
-    response = response.json()
-    result = response["result"]
-    total_updates = len(result) - 1
-    return result[total_updates]  # get last record message update
+greet_bot = BotHandler(token)
+
+greetings = ("hello", "hey", "good morning", "good evening", "good day")
+
+now = datetime.datetime.now()
 
 
-# create function that let bot send message to user
-def send_message(chat_id, message_text):
-    params = {"chat_id": chat_id, "text": message_text}
-    response = requests.post(url + "sendMessage", data=params)
-    return response
 
 
-# create main function for navigate or reply message back
 def main():
-    update_id = last_update(url)["update_id"]
+    new_offset = None
+    hour = now.hour
+
     while True:
-        update = last_update(url)
-        if update_id == update["update_id"]:
-            if get_message_text(update).lower() == "hi" or get_message_text(update).lower() == "hello":
-                send_message(get_chat_id(update), 'Hello Welcome to my bot')
-            elif get_message_text(update).lower() == "good morning":
+        greet_bot.get_updates(new_offset)
 
-                send_message(get_chat_id(update),'Good Morning')
+        last_update = greet_bot.get_last_update()
+        print("LAST UPDATE: ", type(last_update), "\n", last_update)
+
+        if type(last_update) != list:
+            last_update_id = last_update['update_id']
+            last_chat_text = last_update['message']['text']
+            print(last_chat_text, len(last_chat_text), type(last_chat_text))
+            last_chat_id = last_update['message']['chat']['id']
+            last_chat_name = last_update['message']['chat']['first_name']
+            try:
+                first_chat_name = last_update['message']['chat']['last_name']
+            except:
+                first_chat_name = "none"
+
+            if last_chat_text.lower() in greetings and 6 <= hour < 12:
+                greet_bot.send_message(last_chat_id, 'Good morning,wasup }!'.format(last_chat_name))
+            elif last_chat_text.lower() in greetings and 12 <= hour < 17:
+                greet_bot.send_message(last_chat_id, 'Good day,wasup {}!'.format(last_chat_name))
+
+            elif last_chat_text.lower() in greetings and 17 <= hour <= 23:
+                greet_bot.send_message(last_chat_id, 'Good evening,wasup {}!'.format(last_chat_name))
+
             else:
-                send_message(get_chat_id(update), "How can i help you")
-            update_id += 1
+                greet_bot.send_message(last_chat_id, 'I don\'t understand, {}.'.format(last_chat_name, last_chat_name,
+                                                                                       last_chat_name))
 
 
-# call the function to make it reply
-main()
+            new_offset = last_update_id + 1
+
+        else:
+            print("No updates")
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        exit()
+
+
+
+
