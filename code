@@ -2,7 +2,7 @@
   import requests
 import datetime
 
-token = "1026085102:AAHKemyVdc-LxWLsw7eniMEaXobIVlxTt6k"  # your token API
+token = "1026085102:AAHKemyVdc-LxWLsw7eniMEaXobIVlxTt6k"  # mytoken
 
 
 class BotHandler:
