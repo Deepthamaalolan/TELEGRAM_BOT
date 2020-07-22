@@ -1,13 +1,13 @@
-
 import requests
 import telebot
 from telebot import types
+import re
 
 
 greetings=("hello","hey","sup")
-bot = telebot.TeleBot("1362815964:AAHWm1S96JcmHFX0dtiopptcwwgL5hfsLYs")
+bot = telebot.TeleBot("1362815964:AAHWm1S96JcmHFX0dtiopptcwwgL5hfsLYs") #praczbot
 url = "https://api.telegram.org/bot1362815964:AAHWm1S96JcmHFX0dtiopptcwwgL5hfsLYs/"
-
+regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 def get_message_text(update):
     message_text = update["message"]["text"]
     return message_text
@@ -46,12 +46,15 @@ def insent(msg):
 
 def expert(msg):
     bot.send_message(msg.chat.id,"Let me try to see if the team is available at the moment")
+    bot.send_message(msg.chat.id,"May I have a good email for you")
+
+
 def demo(msg):
     bot.send_message(msg.chat.id,"Awesome. Let’s fix a time for you to see the demo ✨ ")
 def demo2(msg):
     markup = types.InlineKeyboardMarkup()
     markup.row(telebot.types.InlineKeyboardButton("No, I don't want to see the demo",callback_data="help4"))
-    bot.send_message(msg.chat.id, "xxx", reply_markup=markup)
+    bot.send_message(msg.chat.id, "Choose", reply_markup=markup)
 def browse(msg):
     bot.send_message(msg.chat.id,"Alright. Talk soon, bye now 👋")
 def demo1(msg):
@@ -92,7 +95,8 @@ def callback_inline(call):
             demo2(call.message)
      if call.message:
         if call.data == "help7":
-            bot.answer_callback_query(callback_query_id=call.id
+            bot.answer_callback_query(callback_query_id=call.id)
+
 
 
 @bot.message_handler(content_types=['text'])
@@ -113,13 +117,16 @@ def msg(m):
 
         bot.send_message(cid, "Hi \n\n Welcome To My Bot \n\n Please Choose One :)", disable_notification=True,
                      reply_markup=markup)
-    elif text.lower()=="Yes":
+    if (re.search(regex, text)):
         cid = m.chat.id
+
         markup = types.InlineKeyboardMarkup()
-        b = types.InlineKeyboardButton("Time",callback_data='help3')
-        c = types.InlineKeyboardButton("okay",callback_data='help4')
-        markup.add(b,c)
-        bot.send_message(cid, "Can we fix a meet :)", disable_notification=True,
-                   reply_markup=markup)
+        markup.row(
+            telebot.types.InlineKeyboardButton("That'd be great 👍", callback_data='help3'))
+        markup.row(
+            types.InlineKeyboardButton("Not right now", callback_data='help4'))
+        bot.send_message(cid, "Do you want to pick a time for a demo without waiting?",disable_notification=True,
+                     reply_markup=markup)
+
 
 bot.polling()
