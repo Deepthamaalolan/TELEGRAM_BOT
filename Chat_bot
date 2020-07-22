@@ -1,3 +1,4 @@
+
 import requests
 import telebot
 from telebot import types
@@ -35,42 +36,63 @@ def send_message(chat_id, message_text):
 
 
 def insent(msg):
-    bot.send_message(msg.chat.id,"By integrating with your marketing automation and CRM platforms ," \
-           "Insent identifies the browsing accounts before they fill your form If " \
-           "the account is a good fit and is ready for a conversation , Insent will " \
-           "alert the right SDRs/AEs and enable them to send a contextual, real-time message.")
-
+    markup = types.InlineKeyboardMarkup()
+    markup.row(
+      telebot.types.InlineKeyboardButton("Would you like to see a live demo?💻", callback_data='help5'))
+    bot.send_message(msg.chat.id, 'By integrating with your marketing automation and CRM platforms , '
+                                                 'Insent identifies the browsing accounts before they fill your form '
+                                                 'If the account is a good fit and is ready for a conversation , '
+                                                 'Insent will alert the right SDRs/AEs and enable them to send a contextual, real-time message. ',reply_markup=markup)
 
 def expert(msg):
     bot.send_message(msg.chat.id,"Let me try to see if the team is available at the moment")
-
-
 def demo(msg):
     bot.send_message(msg.chat.id,"Awesome. Let’s fix a time for you to see the demo ✨ ")
-
+def demo2(msg):
+    markup = types.InlineKeyboardMarkup()
+    markup.row(telebot.types.InlineKeyboardButton("No, I don't want to see the demo",callback_data="help4"))
+    bot.send_message(msg.chat.id, "xxx", reply_markup=markup)
 def browse(msg):
-    bot.send_message(msg.chat.id,"Alright talk soon , Bye now")
+    bot.send_message(msg.chat.id,"Alright. Talk soon, bye now 👋")
+def demo1(msg):
+    markup = types.InlineKeyboardMarkup()
+    markup.row(
+        telebot.types.InlineKeyboardButton("Absolutely👍",callback_data="help6"))
+    markup.row(
+        telebot.types.InlineKeyboardButton("Not now ⏳Thanks though!", callback_data="help4"))
+
+    bot.send_message(msg.chat.id,"please choose",reply_markup=markup)
+
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
      if call.message:
-        if call.data == "help1":
+        if call.data == "help":
             bot.answer_callback_query(callback_query_id=call.id)
             insent(call.message)
-
      if call.message:
         if call.data == "help2":
             bot.answer_callback_query(callback_query_id=call.id)
             expert(call.message)
-
+     if call.message:
         if call.data == "help3":
             bot.answer_callback_query(callback_query_id=call.id)
             demo(call.message)
-        if call.message:
-            if call.data == "help4":
-                bot.answer_callback_query(callback_query_id=call.id)
-                browse(call.message)
-
+     if call.message:
+        if call.data == "help4":
+            bot.answer_callback_query(callback_query_id=call.id)
+            browse(call.message)
+     if call.message:
+        if call.data == "help5":
+            bot.answer_callback_query(callback_query_id=call.id)
+            demo1(call.message)
+     if call.message:
+        if call.data == "help6":
+            bot.answer_callback_query(callback_query_id=call.id)
+            demo2(call.message)
+     if call.message:
+        if call.data == "help7":
+            bot.answer_callback_query(callback_query_id=call.id
 
 
 @bot.message_handler(content_types=['text'])
@@ -81,7 +103,7 @@ def msg(m):
         cid = m.chat.id
         markup = types.InlineKeyboardMarkup()
         markup.row(
-            telebot.types.InlineKeyboardButton("Know more about insent",callback_data='help1'))
+            telebot.types.InlineKeyboardButton("Know more about insent",callback_data='help'))
         markup.row(
             types.InlineKeyboardButton("Speak with a Conversational Marketing expert 🙌",callback_data='help2'))
         markup.row(
