@@ -1,0 +1,103 @@
+import requests
+import telebot
+from telebot import types
+
+
+greetings=("hello","hey","sup")
+bot = telebot.TeleBot("1362815964:AAHWm1S96JcmHFX0dtiopptcwwgL5hfsLYs")
+url = "https://api.telegram.org/bot1362815964:AAHWm1S96JcmHFX0dtiopptcwwgL5hfsLYs/"
+
+def get_message_text(update):
+    message_text = update["message"]["text"]
+    return message_text
+def last_update(req):
+    response = requests.get(req + "getUpdates")
+    response = response.json()
+    result = response["result"]
+    total_updates = len(result) - 1
+    return result[total_updates]
+
+
+@bot.message_handler(commands=['start'])
+def welcome(m):
+    cid = m.chat.id
+    markup = types.InlineKeyboardMarkup()
+    b = types.InlineKeyboardButton("Know more about insent",callback_data='help')
+    c = types.InlineKeyboardButton("Speak to conversational marketing expert",callback_data='help2')
+    markup.add(b,c)
+    bot.send_message(cid, "Hi \n\n Welcome To My Bot \n\n Please Choose One :)", disable_notification=True,
+                     reply_markup=markup)
+
+def send_message(chat_id, message_text):
+    params = {"chat_id": chat_id, "text": message_text}
+    response = requests.post(url + "sendMessage", data=params)
+    return response
+
+
+def insent(msg):
+    bot.send_message(msg.chat.id,"By integrating with your marketing automation and CRM platforms ," \
+           "Insent identifies the browsing accounts before they fill your form If " \
+           "the account is a good fit and is ready for a conversation , Insent will " \
+           "alert the right SDRs/AEs and enable them to send a contextual, real-time message.")
+
+
+def expert(msg):
+    bot.send_message(msg.chat.id,"Let me try to see if the team is available at the moment")
+
+
+def demo(msg):
+    bot.send_message(msg.chat.id,"Awesome. Let’s fix a time for you to see the demo ✨ ")
+
+def browse(msg):
+    bot.send_message(msg.chat.id,"Alright talk soon , Bye now")
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+     if call.message:
+        if call.data == "help1":
+            bot.answer_callback_query(callback_query_id=call.id)
+            insent(call.message)
+
+     if call.message:
+        if call.data == "help2":
+            bot.answer_callback_query(callback_query_id=call.id)
+            expert(call.message)
+
+        if call.data == "help3":
+            bot.answer_callback_query(callback_query_id=call.id)
+            demo(call.message)
+        if call.message:
+            if call.data == "help4":
+                bot.answer_callback_query(callback_query_id=call.id)
+                browse(call.message)
+
+
+
+@bot.message_handler(content_types=['text'])
+def msg(m):
+    print(m)
+    text=m.text
+    if text.lower() in greetings:
+        cid = m.chat.id
+        markup = types.InlineKeyboardMarkup()
+        markup.row(
+            telebot.types.InlineKeyboardButton("Know more about insent",callback_data='help1'))
+        markup.row(
+            types.InlineKeyboardButton("Speak with a Conversational Marketing expert 🙌",callback_data='help2'))
+        markup.row(
+            types.InlineKeyboardButton(" Show me a demo 🙋",callback_data='help3'))
+        markup.row(
+            types.InlineKeyboardButton(" Just browsing 🙋",callback_data='help4'))
+
+        bot.send_message(cid, "Hi \n\n Welcome To My Bot \n\n Please Choose One :)", disable_notification=True,
+                     reply_markup=markup)
+    elif text.lower()=="Yes":
+        cid = m.chat.id
+        markup = types.InlineKeyboardMarkup()
+        b = types.InlineKeyboardButton("Time",callback_data='help3')
+        c = types.InlineKeyboardButton("okay",callback_data='help4')
+        markup.add(b,c)
+        bot.send_message(cid, "Can we fix a meet :)", disable_notification=True,
+                   reply_markup=markup)
+
+bot.polling()
